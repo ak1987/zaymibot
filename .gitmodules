@@ -1,3 +1,6 @@
 [submodule "backend"]
 	path = backend
 	url = git@github.com:ak1987/zaymibot_backend.git
+[submodule "admin"]
+	path = admin
+	url = git@github.com:ak1987/zaymibot_admin.git

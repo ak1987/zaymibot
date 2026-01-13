@@ -1,0 +1,80 @@
+version: '3'
+
+services:
+  admin:
+    build:
+      context: ./admin
+      # PROD URL
+      args:
+        VITE_APP_BACKEND_ADDR: ${BACKEND_ADDR}
+    restart: always
+    networks:
+      - zaymibot
+    depends_on:
+      - backend
+    environment:
+      # DEV URL
+      VITE_APP_BACKEND_ADDR: ${BACKEND_ADDR}
+    volumes:
+      - /app/node_modules
+      - ./admin:/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zb-adminpanel.rule=Host(`${ADMINPANEL_ADDR}`)"
+      - "traefik.http.routers.zb-adminpanel.entrypoints=http,https"
+      - "traefik.http.services.zb-adminpanel.loadbalancer.server.port=5173"
+      #- "traefik.http.routers.adminpanel.tls=true"
+      #- "traefik.http.routers.adminpanel.tls.certresolver=myresolver"
+  backend:
+    build: ./backend
+    restart: always
+    networks:
+      - zaymibot
+    depends_on:
+      - postgres
+    environment:
+      # HOSTS
+      BACKEND_ADDR: ${BACKEND_ADDR}
+      ADMINPANEL_ADDR: ${ADMINPANEL_ADDR}
+      # PG
+      PG_HOST: ${PG_HOST}
+      PG_PORT: ${PG_PORT}
+      PG_USER: ${PG_USER}
+      PG_PASS: ${PG_PASS}
+      PG_DB: ${PG_DB}
+      # JWT
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_AUTH_TIME: ${JWT_AUTH_TIME} # auth timeout
+      JWT_REFRESH_TIME: ${JWT_REFRESH_TIME} # auth timeout
+      # USER
+      ADMIN_PASS: ${ADMIN_PASS}
+      ADMIN_USER: ${ADMIN_USER}
+      # TG
+      BOT_TOKEN: ${BOT_TOKEN}
+      TG_VERBOSE_LOGS: ${TG_VERBOSE_LOGS}
+    volumes:
+      - /app/node_modules
+      - ./backend:/app
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.zb-backend.rule=Host(`${BACKEND_ADDR}`)"
+      - "traefik.http.routers.zb-backend.entrypoints=http,https"
+      - "traefik.http.services.zb-backend.loadbalancer.server.port=3000"
+  postgres:
+    image: postgres:17
+    restart: always
+    networks:
+      - zaymibot
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASS}
+      POSTGRES_DB: ${PG_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+
+networks:
+  zaymibot:
+    external: true
