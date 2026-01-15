@@ -49,12 +49,16 @@ services:
       # USER
       ADMIN_PASS: ${ADMIN_PASS}
       ADMIN_USER: ${ADMIN_USER}
+      # BINOM
+      BINOM_URL: ${BINOM_URL}
+      BINOM_SOURCE: ${BINOM_SOURCE}
       # TG
       BOT_TOKEN: ${BOT_TOKEN}
       TG_VERBOSE_LOGS: ${TG_VERBOSE_LOGS}
     volumes:
       - /app/node_modules
       - ./backend:/app
+      - ./data.json:/config/telegram.json
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.zb-backend.rule=Host(`${BACKEND_ADDR}`)"
